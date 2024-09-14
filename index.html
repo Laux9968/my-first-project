@@ -52,8 +52,49 @@
         /* Gantt Chart Container */
         #gantt-container {
             margin-top: 20px;
+            min-height: 400px; /* Ensure it has some height */
         }
     </style>
     <!-- Include Frappé Gantt CSS and JS -->
     <link rel="stylesheet" href="https://frappe.io/gantt/dist/frappe-gantt.css">
-    <script src="https://frappe.io/gantt/dist/frappe-gantt.min.js"></script​⬤
+    <script src="https://frappe.io/gantt/dist/frappe-gantt.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Home Construction Scheduler</h1>
+        <div id="homes"></div>
+        <input type="text" id="home-name" placeholder="Enter Home Name">
+        <button onclick="addHome()">Add Home</button>
+
+        <!-- Gantt Chart Container -->
+        <div id="gantt-container"></div>
+    </div>
+    <script>
+        let homes = [];
+
+        function addHome() {
+            const homeName = document.getElementById('home-name').value;
+            if (homeName.trim() !== '') {
+                const home = {
+                    name: homeName,
+                    tasks: []
+                };
+                homes.push(home);
+                document.getElementById('home-name').value = '';
+                renderHomes();
+            }
+        }
+
+        function addTask(homeIndex) {
+            const taskName = document.getElementById(`task-name-${homeIndex}`).value;
+            const startDate = document.getElementById(`start-date-${homeIndex}`).value;
+            const endDate = document.getElementById(`end-date-${homeIndex}`).value;
+            
+            if (taskName.trim() !== '' && startDate && endDate) {
+                const task = {
+                    name: taskName,
+                    start: startDate,
+                    end: endDate
+                };
+                homes[homeIndex].tasks​⬤
+        

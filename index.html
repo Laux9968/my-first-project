@@ -1,81 +1,125 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Calculator</title>
+    <title>Home Construction Scheduler</title>
     <style>
-        /* Basic styling for the calculator */
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
+            padding: 20px;
         }
-        .calculator {
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
             background: white;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            /* Change font color to blue */
-            color: blue; /* This line changes the font color */
         }
-        input {
+        .home {
+            margin-bottom: 20px;
+        }
+        .task {
+            margin: 5px 0;
+        }
+        input, button {
             padding: 10px;
             margin: 5px;
             font-size: 1em;
         }
         button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 1em;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="calculator">
-        <h1>Simple Calculator</h1>
-        <input type="number" id="num1" placeholder="Enter first number">
-        <input type="number" id="num2" placeholder="Enter second number">
-        <br>
-        <button onclick="calculate('add')">Add</button>
-        <button onclick="calculate('subtract')">Subtract</button>
-        <button onclick="calculate('multiply')">Multiply</button>
-        <button onclick="calculate('divide')">Divide</button>
-        <h2 id="result">Result: </h2>
+    <div class="container">
+        <h1>Home Construction Scheduler</h1>
+        <div id="homes"></div>
+        <input type="text" id="home-name" placeholder="Enter Home Name">
+        <button onclick="addHome()">Add Home</button>
     </div>
     <script>
-        function calculate(operation) {
-            var num1 = parseFloat(document.getElementById('num1').value);
-            var num2 = parseFloat(document.getElementById('num2').value);
-            var result;
-            
-            if (isNaN(num1) || isNaN(num2)) {
-                result = "Please enter valid numbers.";
-            } else {
-                switch (operation) {
-                    case 'add':
-                        result = num1 + num2;
-                        break;
-                    case 'subtract':
-                        result = num1 - num2;
-                        break;
-                    case 'multiply':
-                        result = num1 * num2;
-                        break;
-                    case 'divide':
-                        if (num2 !== 0) {
-                            result = num1 / num2;
-                        } else {
-                            result = "Cannot divide by zero.";
-                        }
-                        break;
-                    default:
-                        result = "Invalid operation.";
-                }
+        let homes = [];
+
+        function addHome() {
+            const homeName = document.getElementById('home-name').value;
+            if (homeName.trim() !== '') {
+                const home = {
+                    name: homeName,
+                    tasks: []
+                };
+                homes.push(home);
+                document.getElementById('home-name').value = '';
+                renderHomes();
             }
-            document.getElementById('result').innerText = "Result: " + result;
+        }
+
+        function addTask(homeIndex) {
+            const taskName = document.getElementById(`task-name-${homeIndex}`).value;
+            const startDate = document.getElementById(`start-date-${homeIndex}`).value;
+            const endDate = document.getElementById(`end-date-${homeIndex}`).value;
+            
+            if (taskName.trim() !== '' && startDate && endDate) {
+                const task = {
+                    name: taskName,
+                    start: startDate,
+                    end: endDate
+                };
+                homes[homeIndex].tasks.push(task);
+                renderHomes();
+            }
+        }
+
+        function renderHomes() {
+            const homesContainer = document.getElementById('homes');
+            homesContainer.innerHTML = '';
+
+            homes.forEach((home, index) => {
+                const homeDiv = document.createElement('div');
+                homeDiv.className = 'home';
+
+                const homeTitle = document.createElement('h2');
+                homeTitle.innerText = home.name;
+                homeDiv.appendChild(homeTitle);
+
+                home.tasks.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'task';
+                    taskDiv.innerHTML = `<strong>${task.name}</strong> (Start: ${task.start}, End: ${task.end})`;
+                    homeDiv.appendChild(taskDiv);
+                });
+
+                const taskNameInput = document.createElement('input');
+                taskNameInput.type = 'text';
+                taskNameInput.id = `task-name-${index}`;
+                taskNameInput.placeholder = 'Enter Task Name';
+                homeDiv.appendChild(taskNameInput);
+
+                const startDateInput = document.createElement('input');
+                startDateInput.type = 'date';
+                startDateInput.id = `start-date-${index}`;
+                homeDiv.appendChild(startDateInput);
+
+                const endDateInput = document.createElement('input');
+                endDateInput.type = 'date';
+                endDateInput.id = `end-date-${index}`;
+                homeDiv.appendChild(endDateInput);
+
+                const addTaskButton = document.createElement('button');
+                addTaskButton.innerText = 'Add Task';
+                addTaskButton.onclick = () => addTask(index);
+                homeDiv.appendChild(addTaskButton);
+
+                homesContainer.appendChild(homeDiv);
+            });
         }
     </script>
 </body>

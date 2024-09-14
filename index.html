@@ -24,6 +24,12 @@
         }
         .task {
             margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-info {
+            flex-grow: 1;
         }
         input, button {
             padding: 10px;
@@ -36,6 +42,12 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }
+        .edit-btn {
+            background-color: #0275d8;
+        }
+        .delete-btn {
+            background-color: #d9534f;
         }
     </style>
 </head>
@@ -78,11 +90,29 @@
             }
         }
 
+        function editTask(homeIndex, taskIndex) {
+            const newTaskName = prompt("Edit Task Name:", homes[homeIndex].tasks[taskIndex].name);
+            const newStartDate = prompt("Edit Start Date (YYYY-MM-DD):", homes[homeIndex].tasks[taskIndex].start);
+            const newEndDate = prompt("Edit End Date (YYYY-MM-DD):", homes[homeIndex].tasks[taskIndex].end);
+
+            if (newTaskName && newStartDate && newEndDate) {
+                homes[homeIndex].tasks[taskIndex].name = newTaskName;
+                homes[homeIndex].tasks[taskIndex].start = newStartDate;
+                homes[homeIndex].tasks[taskIndex].end = newEndDate;
+                renderHomes();
+            }
+        }
+
+        function deleteTask(homeIndex, taskIndex) {
+            homes[homeIndex].tasks.splice(taskIndex, 1);
+            renderHomes();
+        }
+
         function renderHomes() {
             const homesContainer = document.getElementById('homes');
             homesContainer.innerHTML = '';
 
-            homes.forEach((home, index) => {
+            homes.forEach((home, homeIndex) => {
                 const homeDiv = document.createElement('div');
                 homeDiv.className = 'home';
 
@@ -90,32 +120,49 @@
                 homeTitle.innerText = home.name;
                 homeDiv.appendChild(homeTitle);
 
-                home.tasks.forEach(task => {
+                home.tasks.forEach((task, taskIndex) => {
                     const taskDiv = document.createElement('div');
                     taskDiv.className = 'task';
-                    taskDiv.innerHTML = `<strong>${task.name}</strong> (Start: ${task.start}, End: ${task.end})`;
+
+                    const taskInfo = document.createElement('div');
+                    taskInfo.className = 'task-info';
+                    taskInfo.innerHTML = `<strong>${task.name}</strong> (Start: ${task.start}, End: ${task.end})`;
+                    taskDiv.appendChild(taskInfo);
+
+                    const editButton = document.createElement('button');
+                    editButton.className = 'edit-btn';
+                    editButton.innerText = 'Edit';
+                    editButton.onclick = () => editTask(homeIndex, taskIndex);
+                    taskDiv.appendChild(editButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.innerText = 'Delete';
+                    deleteButton.onclick = () => deleteTask(homeIndex, taskIndex);
+                    taskDiv.appendChild(deleteButton);
+
                     homeDiv.appendChild(taskDiv);
                 });
 
                 const taskNameInput = document.createElement('input');
                 taskNameInput.type = 'text';
-                taskNameInput.id = `task-name-${index}`;
+                taskNameInput.id = `task-name-${homeIndex}`;
                 taskNameInput.placeholder = 'Enter Task Name';
                 homeDiv.appendChild(taskNameInput);
 
                 const startDateInput = document.createElement('input');
                 startDateInput.type = 'date';
-                startDateInput.id = `start-date-${index}`;
+                startDateInput.id = `start-date-${homeIndex}`;
                 homeDiv.appendChild(startDateInput);
 
                 const endDateInput = document.createElement('input');
                 endDateInput.type = 'date';
-                endDateInput.id = `end-date-${index}`;
+                endDateInput.id = `end-date-${homeIndex}`;
                 homeDiv.appendChild(endDateInput);
 
                 const addTaskButton = document.createElement('button');
                 addTaskButton.innerText = 'Add Task';
-                addTaskButton.onclick = () => addTask(index);
+                addTaskButton.onclick = () => addTask(homeIndex);
                 homeDiv.appendChild(addTaskButton);
 
                 homesContainer.appendChild(homeDiv);

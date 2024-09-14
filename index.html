@@ -78,9 +78,9 @@
             margin-bottom: 10px;
         }
     </style>
-    <!-- Include Frappé Gantt CSS and JS -->
-    <link rel="stylesheet" href="https://frappe.io/gantt/dist/frappe-gantt.css">
-    <script src="https://frappe.io/gantt/dist/frappe-gantt.min.js"></script>
+    <!-- Correct Frappé Gantt CSS and JS Links -->
+    <link rel="stylesheet" href="https://unpkg.com/frappe-gantt/dist/frappe-gantt.css">
+    <script src="https://unpkg.com/frappe-gantt/dist/frappe-gantt.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -108,6 +108,7 @@
                 document.getElementById('home-name').value = '';
                 renderHomes();
                 renderGanttChart();
+                saveData(); // Save to localStorage
             }
         }
 
@@ -133,6 +134,7 @@
                 document.getElementById(`end-date-${homeId}`).value = '';
                 renderHomes();
                 renderGanttChart();
+                saveData(); // Save to localStorage
             }
         }
 
@@ -141,6 +143,7 @@
             homes = homes.filter(home => home.id !== homeId);
             renderHomes();
             renderGanttChart();
+            saveData(); // Save to localStorage
         }
 
         // Function to delete a task from a home
@@ -149,6 +152,7 @@
             home.tasks = home.tasks.filter(task => task.id !== taskId);
             renderHomes();
             renderGanttChart();
+            saveData(); // Save to localStorage
         }
 
         // Function to render all homes and their tasks
@@ -229,4 +233,19 @@
         function renderGanttChart() {
             const tasks = [];
 
-            
+            homes.forEach(home => {
+                home.tasks.forEach(task => {
+                    tasks.push({
+                        id: task.id,
+                        name: `${home.name}: ${task.name}`,
+                        start: task.start,
+                        end: task.end,
+                        progress: task.progress,
+                        dependencies: task.dependencies
+                    });
+                });
+            });
+
+            const ganttContainer = document.getElementById('gantt-container');
+            ganttContainer.innerHTML = ''; // Clear previous chart
+

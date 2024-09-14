@@ -21,6 +21,10 @@
         }
         .home {
             margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
         }
         .task {
             margin: 5px 0;
@@ -31,10 +35,12 @@
         .task-info {
             flex-grow: 1;
         }
-        input, button {
+        input, button, select {
             padding: 10px;
-            margin: 5px;
+            margin: 5px 0;
             font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
         }
         button {
             background-color: #5cb85c;
@@ -43,16 +49,33 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        button:hover {
+            background-color: #4cae4c;
+        }
         .edit-btn {
             background-color: #0275d8;
+            margin-right: 5px;
+        }
+        .edit-btn:hover {
+            background-color: #025aa5;
         }
         .delete-btn {
             background-color: #d9534f;
+        }
+        .delete-btn:hover {
+            background-color: #c9302c;
         }
         /* Gantt Chart Container */
         #gantt-container {
             margin-top: 20px;
             min-height: 400px; /* Ensure it has some height */
+        }
+        .task-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .task-form input {
+            margin-bottom: 10px;
         }
     </style>
     <!-- Include Frappé Gantt CSS and JS -->
@@ -72,29 +95,138 @@
     <script>
         let homes = [];
 
+        // Function to add a new home
         function addHome() {
             const homeName = document.getElementById('home-name').value;
             if (homeName.trim() !== '') {
                 const home = {
+                    id: `home-${Date.now()}`, // Unique ID
                     name: homeName,
                     tasks: []
                 };
                 homes.push(home);
                 document.getElementById('home-name').value = '';
                 renderHomes();
+                renderGanttChart();
             }
         }
 
-        function addTask(homeIndex) {
-            const taskName = document.getElementById(`task-name-${homeIndex}`).value;
-            const startDate = document.getElementById(`start-date-${homeIndex}`).value;
-            const endDate = document.getElementById(`end-date-${homeIndex}`).value;
-            
+        // Function to add a task to a specific home
+        function addTask(homeId) {
+            const taskName = document.getElementById(`task-name-${homeId}`).value;
+            const startDate = document.getElementById(`start-date-${homeId}`).value;
+            const endDate = document.getElementById(`end-date-${homeId}`).value;
+
             if (taskName.trim() !== '' && startDate && endDate) {
                 const task = {
+                    id: `${homeId}-task-${Date.now()}`, // Unique ID
                     name: taskName,
                     start: startDate,
-                    end: endDate
+                    end: endDate,
+                    progress: 0,
+                    dependencies: ''
                 };
-                homes[homeIndex].tasks​⬤
-        
+                const home = homes.find(h => h.id === homeId);
+                home.tasks.push(task);
+                document.getElementById(`task-name-${homeId}`).value = '';
+                document.getElementById(`start-date-${homeId}`).value = '';
+                document.getElementById(`end-date-${homeId}`).value = '';
+                renderHomes();
+                renderGanttChart();
+            }
+        }
+
+        // Function to delete a home
+        function deleteHome(homeId) {
+            homes = homes.filter(home => home.id !== homeId);
+            renderHomes();
+            renderGanttChart();
+        }
+
+        // Function to delete a task from a home
+        function deleteTask(homeId, taskId) {
+            const home = homes.find(h => h.id === homeId);
+            home.tasks = home.tasks.filter(task => task.id !== taskId);
+            renderHomes();
+            renderGanttChart();
+        }
+
+        // Function to render all homes and their tasks
+        function renderHomes() {
+            const homesDiv = document.getElementById('homes');
+            homesDiv.innerHTML = '';
+
+            homes.forEach(home => {
+                const homeDiv = document.createElement('div');
+                homeDiv.className = 'home';
+
+                // Home Header
+                const homeHeader = document.createElement('h2');
+                homeHeader.textContent = home.name;
+                homeDiv.appendChild(homeHeader);
+
+                // Delete Home Button
+                const deleteHomeBtn = document.createElement('button');
+                deleteHomeBtn.textContent = 'Delete Home';
+                deleteHomeBtn.className = 'delete-btn';
+                deleteHomeBtn.style.marginBottom = '10px';
+                deleteHomeBtn.onclick = () => deleteHome(home.id);
+                homeDiv.appendChild(deleteHomeBtn);
+
+                // Task List
+                const taskList = document.createElement('div');
+                home.tasks.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'task';
+
+                    const taskInfo = document.createElement('div');
+                    taskInfo.className = 'task-info';
+                    taskInfo.textContent = `${task.name} (${task.start} to ${task.end})`;
+                    taskDiv.appendChild(taskInfo);
+
+                    const deleteTaskBtn = document.createElement('button');
+                    deleteTaskBtn.textContent = 'Delete';
+                    deleteTaskBtn.className = 'delete-btn';
+                    deleteTaskBtn.onclick = () => deleteTask(home.id, task.id);
+                    taskDiv.appendChild(deleteTaskBtn);
+
+                    homeDiv.appendChild(taskDiv);
+                });
+                homeDiv.appendChild(taskList);
+
+                // Task Form
+                const taskForm = document.createElement('div');
+                taskForm.className = 'task-form';
+
+                const taskNameInput = document.createElement('input');
+                taskNameInput.type = 'text';
+                taskNameInput.id = `task-name-${home.id}`;
+                taskNameInput.placeholder = 'Enter Task Name';
+                taskForm.appendChild(taskNameInput);
+
+                const startDateInput = document.createElement('input');
+                startDateInput.type = 'date';
+                startDateInput.id = `start-date-${home.id}`;
+                taskForm.appendChild(startDateInput);
+
+                const endDateInput = document.createElement('input');
+                endDateInput.type = 'date';
+                endDateInput.id = `end-date-${home.id}`;
+                taskForm.appendChild(endDateInput);
+
+                const addTaskBtn = document.createElement('button');
+                addTaskBtn.textContent = 'Add Task';
+                addTaskBtn.onclick = () => addTask(home.id);
+                taskForm.appendChild(addTaskBtn);
+
+                homeDiv.appendChild(taskForm);
+
+                homesDiv.appendChild(homeDiv);
+            });
+        }
+
+        // Function to render the Gantt chart
+        function renderGanttChart() {
+            const tasks = [];
+
+            

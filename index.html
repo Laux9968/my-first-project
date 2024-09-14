@@ -1,5 +1,6 @@
 // src/components/MaterialCalculator.js
 import React, { useState } from 'react';
+import { Box, TextField, Button, Typography, Container } from '@mui/material';
 
 function MaterialCalculator() {
     const [length, setLength] = useState('');
@@ -13,24 +14,27 @@ function MaterialCalculator() {
     };
 
     return (
-        <div>
-            <h2>Material Calculator</h2>
-            <div>
-                <label>Length (m):</label>
-                <input type="number" value={length} onChange={(e) => setLength(e.target.value)} />
-            </div>
-            <div>
-                <label>Width (m):</label>
-                <input type="number" value={width} onChange={(e) => setWidth(e.target.value)} />
-            </div>
-            <div>
-                <label>Depth (m):</label>
-                <input type="number" value={depth} onChange={(e) => setDepth(e.target.value)} />
-            </div>
-            <button onClick={calculateVolume}>Calculate Volume</button>
-            {volume !== null && <p>Concrete Volume: {volume} m³</p>}
-        </div>
-    );
-}
+        <Container maxWidth="sm">
+            <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '8px', boxShadow: 3 }}>
+                <Typography variant="h4" gutterBottom>
+                    Material Calculator
+                </Typography>
+                <Box component="form" noValidate autoComplete="off">
+                    <TextField
+                        fullWidth
+                        label="Length (m)"
+                        variant="outlined"
+                        margin="normal"
+                        value={length}
+                        onChange={(e) => setLength(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Width (m)"
+                        variant="outlined"
+                        margin="normal"
+                        value={width}
+                        onChange={(e) => setWidth(e.target.value)}
+                  
 
-export default MaterialCalculator;
+                        

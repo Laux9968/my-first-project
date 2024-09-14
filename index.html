@@ -1,100 +1,36 @@
-// pages/index.js
-import { useState } from 'react';
-import Head from 'next/head';
-import styles from '../styles/Home.module.scss';
+// src/components/MaterialCalculator.js
+import React, { useState } from 'react';
 
-export default function Home({ initialWeather }) {
-  const [city, setCity] = useState('');
-  const [weather, setWeather] = useState(initialWeather);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+function MaterialCalculator() {
+    const [length, setLength] = useState('');
+    const [width, setWidth] = useState('');
+    const [depth, setDepth] = useState('');
+    const [volume, setVolume] = useState(null);
 
-  const fetchWeather = async (e) => {
-    e.preventDefault();
-    if (!city) return;
-    setLoading(true);
-    setError(null);
+    const calculateVolume = () => {
+        const result = length * width * depth;
+        setVolume(result);
+    };
 
-    try {
-      const res = await fetch(`/api/weather?city=${city}`);
-      const data = await res.json();
-      if (res.ok) {
-        setWeather(data);
-      } else {
-        setError(data.message);
-        setWeather(null);
-      }
-    } catch (err) {
-      setError('An unexpected error occurred.');
-      setWeather(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Weather App</title>
-        <meta name="description" content="A simple weather app built with Next.js" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>Weather App</h1>
-
-        <form onSubmit={fetchWeather} className={styles.form}>
-          <input
-            type="text"
-            placeholder="Enter city name"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className={styles.input}
-          />
-          <button type="submit" className={styles.button} disabled={loading}>
-            {loading ? 'Loading...' : 'Get Weather'}
-          </button>
-        </form>
-
-        {error && <p className={styles.error}>{error}</p>}
-
-        {weather && (
-          <div className={styles.weather}>
-            <h2>
-              {weather.name}, {weather.sys.country}
-            </h2>
-            <p>{weather.weather[0].description}</p>
-            <p>Temperature: {weather.main.temp}°C</p>
-            <p>Humidity: {weather.main.humidity}%</p>
-            <p>Wind Speed: {weather.wind.speed} m/s</p>
-          </div>
-        )}
-      </main>
-
-      <footer className={styles.footer}>
-        <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  );
+    return (
+        <div>
+            <h2>Material Calculator</h2>
+            <div>
+                <label>Length (m):</label>
+                <input type="number" value={length} onChange={(e) => setLength(e.target.value)} />
+            </div>
+            <div>
+                <label>Width (m):</label>
+                <input type="number" value={width} onChange={(e) => setWidth(e.target.value)} />
+            </div>
+            <div>
+                <label>Depth (m):</label>
+                <input type="number" value={depth} onChange={(e) => setDepth(e.target.value)} />
+            </div>
+            <button onClick={calculateVolume}>Calculate Volume</button>
+            {volume !== null && <p>Concrete Volume: {volume} m³</p>}
+        </div>
+    );
 }
 
-export async function getServerSideProps() {
-  // Fetch initial weather data for a default city (e.g., London)
-  const defaultCity = 'London';
-  const apiKey = process.env.OPENWEATHER_API_KEY;
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${defaultCity}&units=metric&appid=${apiKey}`
-  );
-
-  if (!res.ok) {
-    return { props: { initialWeather: null } };
-  }
-
-  const data = await res.json();
-
-  return { props: { initialWeather: data } };
-}
-
+export default MaterialCalculator;
